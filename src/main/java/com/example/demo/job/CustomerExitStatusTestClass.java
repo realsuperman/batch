@@ -14,32 +14,27 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class StepNextConditionalJobConfiguration {
+public class CustomerExitStatusTestClass {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 
     @Bean
-    public Job stepNextConditionalJob() {
-        return jobBuilderFactory.get("stepNextConditionalJob")
-                .start(conditionalJobStep1())
-                    .on("FAILED") // FAILED 일 경우(ExitStatus 탐지)
-                    .to(conditionalJobStep3()) // step3으로 이동한다.
-                    .on("*") // step3의 결과 관계 없이
-                    .end() // step3으로 이동하면 Flow가 종료한다.
-                .from(conditionalJobStep1()) // step1로부터
-                    .on("*") // FAILED 외에 모든 경우
-                    .to(conditionalJobStep2()) // step2로 이동한다.
-                    .next(conditionalJobStep3()) // step2가 정상 종료되면 step3으로 이동한다.
-                    .on("*") // step3의 결과 관계 없이
-                    .end() // step3으로 이동하면 Flow가 종료한다.
-                .end() // Job 종료
+    public Job cusomterJob() {
+        return jobBuilderFactory.get("CustomerTestJob")
+                .start(csh1())
+                    .on("FAILED")
+                    .end()
+                .from(csh1())
+                    .on("COMPLETED WITH SKIPS")
+                    .to(csh4())
+                    .end()
                 .build();
     }
 
     @Bean
-    public Step conditionalJobStep1() {
-        return stepBuilderFactory.get("step1")
+    public Step csh1() {
+        return stepBuilderFactory.get("test1")
                 .tasklet((contribution, chunkContext) -> {
                     log.info(">>>>> This is stepNextConditionalJob Step1");
 
@@ -47,7 +42,7 @@ public class StepNextConditionalJobConfiguration {
                      ExitStatus를 FAILED로 지정한다.
                      해당 status를 보고 flow가 진행된다.
                      **/
-                    contribution.setExitStatus(ExitStatus.COMPLETED);
+                    contribution.setExitStatus(new ExitStatus("COMPLETED WITH SKIPS")); // 사용자 정의 ExitStatus 생성
 
                     return RepeatStatus.FINISHED;
                 })
@@ -55,8 +50,8 @@ public class StepNextConditionalJobConfiguration {
     }
 
     @Bean
-    public Step conditionalJobStep2() {
-        return stepBuilderFactory.get("conditionalJobStep2")
+    public Step csh2() {
+        return stepBuilderFactory.get("test2")
                 .tasklet((contribution, chunkContext) -> {
                     log.info(">>>>> This is stepNextConditionalJob Step2");
                     return RepeatStatus.FINISHED;
@@ -65,10 +60,20 @@ public class StepNextConditionalJobConfiguration {
     }
 
     @Bean
-    public Step conditionalJobStep3() {
-        return stepBuilderFactory.get("conditionalJobStep3")
+    public Step csh3() {
+        return stepBuilderFactory.get("test3")
                 .tasklet((contribution, chunkContext) -> {
                     log.info(">>>>> This is stepNextConditionalJob Step3");
+                    return RepeatStatus.FINISHED;
+                })
+                .build();
+    }
+
+    @Bean
+    public Step csh4() {
+        return stepBuilderFactory.get("test4")
+                .tasklet((contribution, chunkContext) -> {
+                    log.info(">>>>> This is stepNextConditionalJob Step4");
                     return RepeatStatus.FINISHED;
                 })
                 .build();
