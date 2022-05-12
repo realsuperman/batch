@@ -14,3 +14,14 @@ exitStatus :  Step의 실행 후 상태를 얘기합니다. (on 체인에서 사
 Decide를 사용하지 않고 .on과 .to를 활용하여 Step의 실행 순서를 변경하는 경우 스텝에서 처리해야할 로직외에 ExitStatus를 지정하는 코드도 추가해야 하며
 또한 사용자 정의 ExitStatus가 필요할 때마다 리스너를 만드는 방식으로 해야하므로 비효율적이다
 -> 참고로 Decide는 어디로 가야할지 흐름만 정해주는 스텝 부분만 존재하는 것이라고 생각하면 된다
+
+Job Parameter를 사용하기 위해선 항상 Scope를 선언해야 한다 참고로 JobParameter 선언법은 @Value("#{jobParameters[파라미터명]}") 이렇게 하면 된다
+
+jobParameters 외에도 jobExecutionContext, stepExecutionContext 등도 SpEL로 사용할 수 있습니다.
+@JobScope에선 stepExecutionContext는 사용할 수 없고, jobParameters와 jobExecutionContext만 사용할 수 있습니다.
+
+@JobScope는 Step 선언문에서 사용 가능하고, @StepScope는 Tasklet이나 ItemReader,ItemWriter,ItemProcessor에서 사용 가능
+(자세한 내용은 SimpleJobConfiguration의 JobScope,StepScope 참조)
+
+@StepScope는 Step 실행시점에 Bean이 생성되며 @JobScope는 Job 실행시점에 Bean이 생성된다 그렇기에 해당 스코프가 있는 녀석들을 호출시 파라미터를 null로 넘긴 것 이다
+(JobParameters를 사용하기 위해선 꼭 @StepScope, @JobScope로 Bean을 생성해야한다는 것을 잊지마세요.)
