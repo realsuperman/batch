@@ -25,3 +25,9 @@ jobParameters 외에도 jobExecutionContext, stepExecutionContext 등도 SpEL로
 
 @StepScope는 Step 실행시점에 Bean이 생성되며 @JobScope는 Job 실행시점에 Bean이 생성된다 그렇기에 해당 스코프가 있는 녀석들을 호출시 파라미터를 null로 넘긴 것 이다
 (JobParameters를 사용하기 위해선 꼭 @StepScope, @JobScope로 Bean을 생성해야한다는 것을 잊지마세요.)
+
+Spring Batch에서의 Chunk란 데이터 덩어리로 작업 할 때 각 커밋 사이에 처리되는 row 수를 이야기 한다
+즉, Chunk 지향 처리란 한 번에 하나씩 데이터를 읽어 Chunk라는 덩어리를 만든 뒤, Chunk 단위로 트랜잭션을 다루는 것을 의미합니다.
+
+일반적으로 ItemReader가 데이터를 읽어오고 읽어온 데이터가 ItemProcessor에 의해서 처리되고 이렇게 처리된 데이터들을 별도의 공간에 모으고 Chunk단위만큼 쌓이게 되면 ItemWriter에 전달하고 Writer가 일괄저장한다
+(한마디로 ItemReader,ItemProcessor는 1건씩 다루어지고 ItemWriter에선 Chunk 단위로 처리된다는걸 기억하자)
