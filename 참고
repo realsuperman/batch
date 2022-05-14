@@ -31,3 +31,8 @@ Spring Batch에서의 Chunk란 데이터 덩어리로 작업 할 때 각 커밋 
 
 일반적으로 ItemReader가 데이터를 읽어오고 읽어온 데이터가 ItemProcessor에 의해서 처리되고 이렇게 처리된 데이터들을 별도의 공간에 모으고 Chunk단위만큼 쌓이게 되면 ItemWriter에 전달하고 Writer가 일괄저장한다
 (한마디로 ItemReader,ItemProcessor는 1건씩 다루어지고 ItemWriter에선 Chunk 단위로 처리된다는걸 기억하자)
+
+Spring batch의 ItemReader는 데이터를 읽어들인다(꼭 DB의 데이터를 의미하는 것은 아니다(이외에도 Spring batch에서 지원하지 않는 Reader가 필요한 경우 직접 해당 Reader를 만들 수 있다)
+(참고로 JdbcPagingItemReader는 ItemReader외에 ItemStream을 구현하고 있다 -> ItemStream은 주기적으로 상태를 저장하고 오류가 발생하면 해당 상태에서 복원하기 위한 인터페이스다)
+
+Spring의 JdbcTemplate는 분할 처리를 지원하지 않기 때문에 개발자가 직접 limit, offset을 사용하는 작업이 필요하다
