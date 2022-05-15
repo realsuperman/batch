@@ -37,19 +37,20 @@ public class JdbcCursorItemReaderJobConfiguration {
     public Step jdbcCursorItemReaderStep() {
         return stepBuilderFactory.get("jdbcCursorItemReaderStep")
                 .<Pay, Pay>chunk(chunkSize)
-                .reader(jdbcCursorItemReader())
+                .reader(jdbcCursorItemReader()) // reader는 tasklet이 아니기 때문에 reader만으로는 수행될 수 없고 Writer가 필요함
                 .writer(jdbcCursorItemWriter())
                 .build();
+        //참고로 processor는 필수가 아니다 (reader만 하면 된다면 processor는 생략해도 됨)
     }
 
     @Bean
     public JdbcCursorItemReader<Pay> jdbcCursorItemReader() {
         return new JdbcCursorItemReaderBuilder<Pay>()
-                .fetchSize(chunkSize)
-                .dataSource(dataSource)
-                .rowMapper(new BeanPropertyRowMapper<>(Pay.class))
-                .sql("SELECT id, amount, tx_name, tx_date_time FROM pay")
-                .name("jdbcCursorItemReader")
+                .fetchSize(chunkSize) // Database에서 한번에 가져올 데이터 양을 나타낸다
+                .dataSource(dataSource) // Database에 접근하기 위해 사용할 Datasource 객체를 할당
+                .rowMapper(new BeanPropertyRowMapper<>(Pay.class)) // 쿼리 결과를 Java 인스턴스로 매핑하기 위한 Mapper(일반적으로 BeanPropertyRowMapper를 씀)
+                .sql("SELECT id, amount, tx_name, tx_date_time FROM pay") // 실제 쿼리문
+                .name("jdbcCursorItemReader") // reader의 이름을 지정
                 .build();
     }
 
@@ -61,3 +62,10 @@ public class JdbcCursorItemReaderJobConfiguration {
         };
     }
 }
+
+/*
+ItemReader의 가장 큰 장점은 데이터를 Streaming 할 수 있다는 것입니다.
+read() 메소드는 데이터를 하나씩 가져와 ItemWriter로 데이터를 전달하고, 다음 데이터를 다시 가져 옵니다.
+이를 통해 reader & processor & writer가 Chunk 단위로 수행되고 주기적으로 Commit 됩니다.
+이는 고성능의 배치 처리에서는 핵심입니다.
+ */
