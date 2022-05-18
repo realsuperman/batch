@@ -42,7 +42,7 @@ public class JdbcPagingItemReaderJobConfiguration { // 커서말고 여러 쿼�
     @Bean
     public Step jdbcPagingItemReaderStep() throws Exception {
         return stepBuilderFactory.get("jdbcPagingItemReaderStep")
-                .<Pay, Pay>chunk(chunkSize)
+                .<Pay, Pay>chunk(chunkSize)// 첫번째 Pay는 Reader에서 반환할 타입이며, 두번째 Pay는 Writer에 파라미터로 넘어올 타입임
                 .reader(jdbcPagingItemReader())
                 .writer(jdbcPagingItemWriter())
                 .build();
@@ -52,6 +52,7 @@ public class JdbcPagingItemReaderJobConfiguration { // 커서말고 여러 쿼�
     public JdbcPagingItemReader<Pay> jdbcPagingItemReader() throws Exception {
         Map<String, Object> parameterValues = new HashMap<>();
         parameterValues.put("amount", 2000);
+        parameterValues.put("tx_name","trade2");
 
         return new JdbcPagingItemReaderBuilder<Pay>()
                 .pageSize(chunkSize) // 페이징을 하므로 페이지 사이즈를 지정한 것임
@@ -83,11 +84,11 @@ public class JdbcPagingItemReaderJobConfiguration { // 커서말고 여러 쿼�
         queryProvider.setDataSource(dataSource); // Database에 맞는 PagingQueryProvider를 선택하기 위해
         queryProvider.setSelectClause("id, amount, tx_name, tx_date_time"); // select 절
         queryProvider.setFromClause("from pay"); // from 절
-        queryProvider.setWhereClause("where amount >= :amount"); // where 절(Reader에서 HashMap으로 정한 값이다)
+        queryProvider.setWhereClause("where amount >= :amount and tx_name = :tx_name"); // where 절(Reader에서 HashMap으로 정한 값이다)
 
         Map<String, Order> sortKeys = new HashMap<>(1);
-        sortKeys.put("id", Order.ASCENDING); // 정렬 관련(반드시 필요)
-        queryProvider.setSortKeys(sortKeys); // 정렬 관련(반드시 필요)
+        sortKeys.put("id", Order.ASCENDING); // 페이징시 정렬 관련(반드시 필요)
+        queryProvider.setSortKeys(sortKeys); // 페이징시 정렬 관련(반드시 필요)
 
         return queryProvider.getObject();
     }

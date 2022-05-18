@@ -36,7 +36,7 @@ public class JdbcCursorItemReaderJobConfiguration {
     @Bean
     public Step jdbcCursorItemReaderStep() {
         return stepBuilderFactory.get("jdbcCursorItemReaderStep")
-                .<Pay, Pay>chunk(chunkSize)
+                .<Pay, Pay>chunk(chunkSize) // 첫번째 Pay는 Reader에서 반환할 타입이며, 두번째 Pay는 Writer에 파라미터로 넘어올 타입임
                 .reader(jdbcCursorItemReader()) // reader는 tasklet이 아니기 때문에 reader만으로는 수행될 수 없고 Writer가 필요함
                 .writer(jdbcCursorItemWriter())
                 .build();
