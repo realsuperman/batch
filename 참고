@@ -36,3 +36,7 @@ Spring batch의 ItemReader는 데이터를 읽어들인다(꼭 DB의 데이터�
 (참고로 JdbcPagingItemReader는 ItemReader외에 ItemStream을 구현하고 있다 -> ItemStream은 주기적으로 상태를 저장하고 오류가 발생하면 해당 상태에서 복원하기 위한 인터페이스다)
 
 Spring의 JdbcTemplate는 분할 처리를 지원하지 않기 때문에 개발자가 직접 limit, offset을 사용하는 작업이 필요하다
+
+Spring의 Writer는 항상 마지막에 Flush를 해줘야만 한다
+
+Reader와 달리 Writer의 경우 Custom하게 구현해야 할 일이 많다 Spring Batch에서 공식적으로 지원하지 않는 Writer를 사용하고 싶을때 ItemWriter인터페이스를 구현하시면 됩니다.
