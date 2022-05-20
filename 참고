@@ -40,3 +40,6 @@ Spring의 JdbcTemplate는 분할 처리를 지원하지 않기 때문에 개발�
 Spring의 Writer는 항상 마지막에 Flush를 해줘야만 한다
 
 Reader와 달리 Writer의 경우 Custom하게 구현해야 할 일이 많다 Spring Batch에서 공식적으로 지원하지 않는 Writer를 사용하고 싶을때 ItemWriter인터페이스를 구현하시면 됩니다.
+
+ItemProcessor는 필수가 아니다 ItemProcessor는 데이터를 가공하거나 필터링하는 역할을 한다(이는 Writer 부분에서도 충분히 구현 가능)->그럼에도 ItemProcessor를 쓰는 것은 비지니스 코드 분리를 위함
+(ItemProcessor는 변환 혹은 필터의 용도로 사용을 한다.)
