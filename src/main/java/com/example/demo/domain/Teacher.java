@@ -7,7 +7,6 @@ import lombok.ToString;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.time.format.DateTimeFormatter;
 
 @ToString
 @Getter
@@ -15,8 +14,8 @@ import java.time.format.DateTimeFormatter;
 @NoArgsConstructor
 @Entity
 public class Teacher {
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-
     @Id
+    private int id;
+
     private String Name;
 }
