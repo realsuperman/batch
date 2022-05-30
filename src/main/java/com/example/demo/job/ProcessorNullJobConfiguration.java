@@ -23,8 +23,8 @@ import javax.persistence.EntityManagerFactory;
 @Configuration
 public class ProcessorNullJobConfiguration {
 
-    public static final String JOB_NAME = "processorNullBatch";
-    public static final String BEAN_PREFIX = JOB_NAME + "_";
+    //public static final String JOB_NAME = "processorNullBatch";
+    //public static final String BEAN_PREFIX = JOB_NAME + "_";
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
@@ -33,29 +33,31 @@ public class ProcessorNullJobConfiguration {
     @Value("${chunkSize:1000}")
     private int chunkSize;
 
-    @Bean(JOB_NAME)
+    //@Bean(JOB_NAME)
+    @Bean
     public Job job() {
-        return jobBuilderFactory.get(JOB_NAME)
+        return jobBuilderFactory.get("processorNullBatch")
                 .preventRestart() // job name과 job parameters를 이용해 job 인스턴스를 식별하는데, job이 실패했으면 동일한 식별정보로 job 실행요청이 들어오면 실패한 step부터 job을 실행하게되는데 이게 있으면 다시 실행되는걸 막음
-                .start(step())
+                .start(cshStep())
                 .build();
     }
 
-    @Bean(BEAN_PREFIX + "step")
+    //@Bean(BEAN_PREFIX + "step")
+    @Bean
     @JobScope
-    public Step step() {
-        return stepBuilderFactory.get(BEAN_PREFIX + "step")
+    public Step cshStep() {
+        return stepBuilderFactory.get("processorNullBatch_Step")
                 .<Teacher, Teacher>chunk(chunkSize)
-                .reader(customReader())
-                .processor(customProcessor())
-                .writer(customWriter())
+                .reader(cshReader())
+                .processor(cshProcessor())
+                .writer(cshWriter())
                 .build();
     }
 
     @Bean
-    public JpaPagingItemReader<Teacher> customReader() {
+    public JpaPagingItemReader<Teacher> cshReader() {
         return new JpaPagingItemReaderBuilder<Teacher>()
-                .name(BEAN_PREFIX+"reader")
+                .name("processorNullBatch"+"reader")
                 .entityManagerFactory(emf)
                 .pageSize(chunkSize)
                 .queryString("SELECT t FROM Teacher t")
@@ -63,7 +65,7 @@ public class ProcessorNullJobConfiguration {
     }
 
     @Bean
-    public ItemProcessor<Teacher, Teacher> customProcessor() {
+    public ItemProcessor<Teacher, Teacher> cshProcessor() {
         return teacher -> {
 
             boolean isIgnoreTarget = teacher.getId() % 2 == 0;
@@ -76,7 +78,7 @@ public class ProcessorNullJobConfiguration {
         };
     }
 
-    private ItemWriter<Teacher> customWriter() {
+    private ItemWriter<Teacher> cshWriter() {
         return items -> {
             for (Teacher item : items) {
                 log.info("Teacher Name={}", item.getName());
