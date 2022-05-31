@@ -23,8 +23,8 @@ import javax.persistence.EntityManagerFactory;
 @Configuration
 public class ProcessorNullJobConfiguration {
 
-    //public static final String JOB_NAME = "processorNullBatch";
-    //public static final String BEAN_PREFIX = JOB_NAME + "_";
+    public static final String JOB_NAME = "processorNullBatch";
+    public static final String BEAN_PREFIX = JOB_NAME + "_";
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
@@ -33,8 +33,7 @@ public class ProcessorNullJobConfiguration {
     @Value("${chunkSize:1000}")
     private int chunkSize;
 
-    //@Bean(JOB_NAME)
-    @Bean
+    @Bean(JOB_NAME)
     public Job job() {
         return jobBuilderFactory.get("processorNullBatch")
                 .preventRestart() // job name과 job parameters를 이용해 job 인스턴스를 식별하는데, job이 실패했으면 동일한 식별정보로 job 실행요청이 들어오면 실패한 step부터 job을 실행하게되는데 이게 있으면 다시 실행되는걸 막음
@@ -42,8 +41,7 @@ public class ProcessorNullJobConfiguration {
                 .build();
     }
 
-    //@Bean(BEAN_PREFIX + "step")
-    @Bean
+    @Bean(BEAN_PREFIX + "step")
     @JobScope
     public Step cshStep() {
         return stepBuilderFactory.get("processorNullBatch_Step")
